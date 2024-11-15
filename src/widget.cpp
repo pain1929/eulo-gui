@@ -224,6 +224,8 @@ void Widget::on_game_clicked(bool)
     if (!std::filesystem::exists(gamePath) || !std::filesystem::exists(configPath))
     {
         QMessageBox::critical(this , "错误" , "路径 或者配置文件不正确");
+        QMessageBox::information(this , "提示" , "请配置启动路径 例如 c:\\abc\\def\\mc 或 c:/abc/def/mc");
+        on_setting_clicked(true);
         return;
     }
 
