@@ -45,6 +45,7 @@ struct Token
     void load (const std::string & fileName) {
 
         auto buffer = FileReader::read("token.data");
+        if (buffer.empty()) return;
         int codeLen,pwdLen,tokenLen;
         memcpy(&codeLen , buffer.data() , 4);
         memcpy(&pwdLen , buffer.data() +4 , 4);
