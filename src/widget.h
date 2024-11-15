@@ -101,6 +101,8 @@ public slots:
     void on_btnTitle(QString msg);
     void on_setting_clicked(bool);
     void on_game_clicked(bool);
+    void on_min();
+    void on_normal();
 
 private:
     Ui::Widget *ui;
@@ -115,6 +117,8 @@ signals:
     void titleMsg(QString msg);
     void btnUsed(bool used);
     void btnTitle(QString str);
+    void min();
+    void normal();
 public:
     explicit WorkThread(Widget * widget) :widget_(widget) {}
 

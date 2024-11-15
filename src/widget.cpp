@@ -190,6 +190,8 @@ void Widget::on_login_clicked(bool) {
     connect(this->mcClientThread.get() , &WorkThread::titleMsg , this , &Widget::on_titleMsg);
     connect(this->mcClientThread.get() , &WorkThread::btnUsed , this , &Widget::on_btnUsed);
     connect(this->mcClientThread.get() , &WorkThread::btnTitle , this , &Widget::on_btnTitle);
+    connect(this->mcClientThread.get() , &WorkThread::min , this , &Widget::on_min);
+    connect(this->mcClientThread.get() , &WorkThread::normal , this , &Widget::on_normal);
     this->mcClientThread->start();
 
 }
@@ -236,11 +238,22 @@ void Widget::on_game_clicked(bool)
         ,boost::process::windows::hide);
 
         QMessageBox::information(this , "提示" , "启动成功请稍等");
+        on_min();
     }
     catch (const std::exception &e)
     {
         emit titleMsg("无法找到启动 Minecraft.Windows 进程 请配置正确路径");
     }
+}
+
+void Widget::on_min()
+{
+    this->showMinimized();
+}
+
+void Widget::on_normal()
+{
+    this->showNormal();
 }
 
 void WorkThread::run()
@@ -274,6 +287,7 @@ void WorkThread::run()
     }
     emit btnUsed(true);
     emit btnTitle("开启代理");
+    emit this->normal();
 
 
 }
