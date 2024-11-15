@@ -1,0 +1,18 @@
+{
+  "room_info": {
+    "ip": "127.0.0.1",
+    "port": 19132
+  },
+  "player_info": {
+    "user_id": -1,
+    "user_name": "***",
+    "urs": "***"
+  },
+  "skin_info": {
+    "skin": "D:\\Happy2018newの个人文件\\GitHub\\Eulogist\\others\\steve.png",
+    "slim": false
+  },
+  "misc": {
+    "multiplayer_game_type": 1000
+  }
+}

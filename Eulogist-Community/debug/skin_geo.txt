@@ -1,0 +1,42 @@
+"format_version" -> 固定为 "1.8.0"
+"geometry.xxx" -> 原始文件提供
+"textureheight", "texturewidth" -> 被保留
+
+"geometry.xxx" -> "bones": 
+    "name": "root":
+        处理后的文件必须带有此项, 如果未提供则使用默认值:
+        {
+          "name": "root",
+          "pivot": [
+            0,
+            0,
+            0
+          ]
+        }
+
+    "name": "waist": 
+        修正 "parent" 为 "root"
+
+    "name": "body":
+        修正 "parent" 为 "waist"
+
+    "name": "head":
+        修正 "parent" 为 "body"
+
+    "name": "leftLeg":
+        修正 "parent" 为 "root"
+
+    "name": "rightLeg":
+        修正 "parent" 为 "root"
+
+    "name": "leftArm":
+        修正 "parent" 为 "body"
+        增加属性 (以及所有的子项目 + 子项目的子项目.. ！！): // 例如 leftSleeve, leftItem..
+            "render_group_id": 1,
+
+    "name": "rightArm":
+        修正 "parent" 为 "body"
+        增加属性 (以及所有的子项目 + 子项目的子项目.. ！！): // 例如 rightSleeve, rightItem..
+            "render_group_id": 1,
+
+去除所有的 "META_BoneType" 属性
