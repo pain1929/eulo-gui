@@ -29,6 +29,7 @@ void SettingDlg::on_save_clicked(bool)
         FileReader::write("config.data" ,buf , size );
         delete [] buf;
         QMessageBox::information(this , "提示" , "保存成功");
+        this->reject();
     }else
     {
         QMessageBox::critical(this ,"错误" , "目录不存在");
