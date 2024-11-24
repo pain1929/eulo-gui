@@ -3,6 +3,9 @@
 #include <QApplication>
 #include <TcpServer.hpp>
 #include <boost/asio/thread_pool.hpp>
+#include "FileReader.h"
+#include <filesystem>
+
 static boost::asio::io_context g_ctx;
 static boost::asio::thread_pool pool{1};
 
@@ -29,6 +32,15 @@ void createJobObject() {
 
 int main(int argc, char *argv[])
 {
+    // 读取皮肤文件 从资源文件内部读取皮肤文件 与程序同级
+    if (!std::filesystem::exists("./steve.png")) {
+        auto data = FileReader::read("./steve.data");
+        if (data.empty()) {throw std::runtime_error ("未找到皮肤文件");}
+        FileReader::write("./steve.png" , data.data() , data.size());
+    }
+
+
+
     createJobObject();
 
     TcpServer server(g_ctx , 1930);
