@@ -235,6 +235,11 @@ void Widget::on_setting_clicked(bool)
 
 void Widget::on_game_clicked(bool)
 {
+    if (!this->eulo || !this->eulo->running()) {
+        QMessageBox::critical(this , "错误" , "请先启动代理 成功后再启动游戏");
+        return;
+    }
+
     if (this->minecraft) {this->minecraft->terminate();}
     auto gamePath = std::filesystem::path(config_.gamePath + u"/Minecraft.Windows.exe");
     auto configPath =std::filesystem::path( std::filesystem::current_path().generic_u16string() +  u"/netease.cppconfig");
@@ -243,11 +248,6 @@ void Widget::on_game_clicked(bool)
         QMessageBox::critical(this , "错误" , "路径 或者配置文件不正确");
         QMessageBox::information(this , "提示" , "请配置启动路径 例如 c:\\abc\\def\\mc 或 c:/abc/def/mc");
         on_setting_clicked(true);
-        return;
-    }
-
-    if (!this->eulo || !this->eulo->running()) {
-        QMessageBox::critical(this , "错误" , "请先启动代理 成功后再启动游戏");
         return;
     }
 
