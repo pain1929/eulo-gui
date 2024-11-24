@@ -31,6 +31,7 @@ add_executable(${PROJECT_NAME} WIN32
         widget.h
         widget.ui
         res.qrc
+        app.rc
         TcpServer.hpp
         MsgQue.h
         message/Msg.h
