@@ -218,12 +218,12 @@ void Widget::on_titleMsg(QString msg)
 
 void Widget::on_btnUsed(bool used)
 {
-    ui->login->setEnabled(used);
+    ui->game->setEnabled(used);
 }
 
 void Widget::on_btnTitle(QString msg)
 {
-    ui->login->setText(msg);
+    ui->game->setText(msg);
 }
 
 void Widget::on_setting_clicked(bool)
@@ -233,37 +233,26 @@ void Widget::on_setting_clicked(bool)
     this->config_ = dlg.config;
 }
 
-void Widget::on_game_clicked(bool)
-{
-    if (!this->eulo || !this->eulo->running()) {
-        QMessageBox::critical(this , "错误" , "请先启动代理 成功后再启动游戏");
-        return;
-    }
+void Widget::on_game_clicked(bool) {
 
+    //结束进行
+    if (this->eulo) {this->eulo->terminate();}
     if (this->minecraft) {this->minecraft->terminate();}
-    auto gamePath = std::filesystem::path(config_.gamePath + u"/Minecraft.Windows.exe");
-    auto configPath =std::filesystem::path( std::filesystem::current_path().generic_u16string() +  u"/netease.cppconfig");
-    if (!std::filesystem::exists(gamePath) || !std::filesystem::exists(configPath))
+    //检查客户端是否存在
+    this->gamePath = std::make_shared<std::filesystem::path>(config_.gamePath + u"/Minecraft.Windows.exe");
+    this->configPath = std::make_shared<std::filesystem::path>( std::filesystem::current_path().generic_u16string() +  u"/netease.cppconfig");
+
+    if (!exists(*gamePath))
     {
-        QMessageBox::critical(this , "错误" , "路径 或者配置文件不正确");
+        QMessageBox::critical(this , "错误" , "路径不正确");
         QMessageBox::information(this , "提示" , "请配置启动路径 例如 c:\\abc\\def\\mc 或 c:/abc/def/mc");
         on_setting_clicked(true);
         return;
     }
 
-    try
-    {
-        this->minecraft = std::make_shared<boost::process::child>(gamePath.generic_wstring() ,
-            L"config=" + configPath.generic_wstring()
-        ,boost::process::windows::hide);
+    //先启动代理
+    on_login_clicked(true);
 
-        QMessageBox::information(this , "提示" , "启动成功请稍等");
-        on_min();
-    }
-    catch (const std::exception &e)
-    {
-        emit titleMsg("无法找到启动 Minecraft.Windows 进程 请配置正确路径");
-    }
 }
 
 void Widget::on_min()
@@ -294,19 +283,30 @@ void WorkThread::run()
             memcpy(msgStr.data() , msg->errorMsg.data() , msg->errorMsgLen);
             emit titleMsg(QString(msgStr.c_str()));
             emit btnUsed(true);
-            emit btnTitle("启动代理");
+            emit btnTitle("启动游戏");
             MsgRegister::obj().setMsg(nullptr);
             return;
         }
 
-        emit titleMsg ("端口启动成功 访问 127.0.0.1:1929 进入租赁服");
-        emit btnTitle("端口已开启 127.0.0.1:1929");
+        emit titleMsg ("启动成功！");
+        emit btnTitle("服务已启动");
         emit btnUsed(true);
         MsgRegister::obj().setMsg(nullptr);
 
+        // 开始启动客户端
+        try
+        {
+            widget_->minecraft = std::make_shared<boost::process::child>(widget_->gamePath->generic_wstring() ,
+                L"config=" + widget_->configPath->generic_wstring()
+            ,boost::process::windows::hide);
+        }
+        catch (const std::exception &e)
+        {
+            emit titleMsg("无法找到启动 Minecraft.Windows 进程 请配置正确路径");
+        }
     }
     emit btnUsed(true);
-    emit btnTitle("开启代理");
+    emit btnTitle("启动游戏");
     emit this->normal();
 
 

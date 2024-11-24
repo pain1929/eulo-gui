@@ -6,7 +6,8 @@
 // 消息类型
 enum struct MsgType : uint64_t {
     EuloMsg = 0, //!< eulogist 进程 返回的启动信息 通知启动成功或失败 启动失败返回错误消息
-    SendCmdMsg = 1 //!< GUI进程 发送给 eulogist进程的命令信息 用于发送给租赁服
+    SendCmdMsg = 1, //!< GUI进程 发送给 eulogist进程的命令信息 用于发送给租赁服
+    MCPacket = 2  //!< GUI进程 和 eulo 进行通信发送基岩协议数据包 并非原始数据 需要由eulo进程进行分析
 };
 
 

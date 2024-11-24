@@ -109,6 +109,8 @@ public slots:
 
 private:
     Ui::Widget *ui;
+    std::shared_ptr<std::filesystem::path> gamePath; //!< 游戏路径
+    std::shared_ptr<std::filesystem::path>  configPath; //!< 配置路径
 };
 
 
