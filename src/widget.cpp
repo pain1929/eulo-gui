@@ -4,7 +4,6 @@
 
 #include "./ui_widget.h"
 #include <QMessageBox>
-#include <qobjectdefs.h>
 #include <boost/process/windows.hpp>
 #include "MsgQue.h"
 Widget::Widget(QWidget *parent)
@@ -154,6 +153,22 @@ void Widget::paintEvent(QPaintEvent* event)
 
     // 绘制背景图片，指定其位置和大小
     painter.drawPixmap(0, 0, width(), height(), background);
+
+    // 设置文字的字体和颜色
+    QFont font("Arial", 10);
+    painter.setFont(font);
+    painter.setPen(Qt::white); // 白色文字，方便在背景上显示
+
+    // 要绘制的文字
+    QString text = "赞颂者GUI v" + QString(APP_VERSION);
+
+    // 计算右下角的位置
+    int margin = 10; // 距离窗口边界的边距
+    int x = 5;
+    int y = height() - margin;
+
+    // 绘制文字在右下角
+    painter.drawText(x, y, text);
 }
 
 void Widget::on_login_clicked(bool) {
@@ -228,6 +243,11 @@ void Widget::on_game_clicked(bool)
         QMessageBox::critical(this , "错误" , "路径 或者配置文件不正确");
         QMessageBox::information(this , "提示" , "请配置启动路径 例如 c:\\abc\\def\\mc 或 c:/abc/def/mc");
         on_setting_clicked(true);
+        return;
+    }
+
+    if (!this->eulo || !this->eulo->running()) {
+        QMessageBox::critical(this , "错误" , "请先启动代理 成功后再启动游戏");
         return;
     }
 

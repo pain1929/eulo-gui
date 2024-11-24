@@ -3,11 +3,11 @@
 
 #include <future>
 
-#include "Msg.h"
+#include "message/Msg.h"
 
 class MsgRegister {
 
-   std::shared_ptr<NormalMsg> msg;
+   std::shared_ptr<EuloMsgType> msg;
 public:
 
    static MsgRegister & obj() {
@@ -15,11 +15,11 @@ public:
       return ins;
    }
 
-   void setMsg (std::shared_ptr<NormalMsg> msg){
+   void setMsg (std::shared_ptr<EuloMsgType> msg){
       this->msg = msg;
    }
 
-   std::shared_ptr<NormalMsg> getMsg(){
+   std::shared_ptr<EuloMsgType> getMsg(){
       return this->msg;
    }
 

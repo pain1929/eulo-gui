@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(Eulo-GUI LANGUAGES CXX)
+project(Eulo-GUI VERSION 1.0.1 LANGUAGES CXX)
 
 if(MSVC)
     # 设置 MSVC 编译器使用 UTF-8 编码
@@ -33,7 +33,7 @@ add_executable(${PROJECT_NAME} WIN32
         res.qrc
         TcpServer.hpp
         MsgQue.h
-        Msg.h
+        message/Msg.h
         DragDropLineEdit.h
         settingdlg.cpp
         settingdlg.h

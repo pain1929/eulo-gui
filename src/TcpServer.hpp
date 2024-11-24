@@ -3,7 +3,7 @@
 #include <qglobal.h>
 #include <boost/asio.hpp>
 
-#include "Msg.h"
+#include "message/Msg.h"
 #include "MsgQue.h"
 
 
@@ -42,9 +42,20 @@ private:
             auto buf = new uint8_t[msgHdr->msgLen];
             boost::asio::read(socket_ , asio::buffer(buf , msgHdr->msgLen));
 
-            auto msg = std::make_shared<NormalMsg>();
-            msg->load(buf);
-            MsgRegister::obj().setMsg(msg);
+            // buf 前8个字节是 消息类型 见 message/Msg.h 中 MsgType 类型
+            auto msgType = *reinterpret_cast<MsgType*>(buf);
+            switch (msgType)
+            {
+            case MsgType::EuloMsg :
+                {
+                    auto euloMsg = std::make_shared<EuloMsgType>();
+                    euloMsg->load(buf + sizeof (MsgType));
+                    MsgRegister::obj().setMsg(euloMsg);
+                    break;
+                }
+                default:
+                    break;
+            }
             delete [] buf;
             delete msgHdr;
             read();
