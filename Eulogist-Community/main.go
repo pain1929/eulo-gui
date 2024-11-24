@@ -19,6 +19,8 @@ func main() {
 	err := Eulogist.Eulogist(os.Args[1], os.Args[2], os.Args[3], dial)
 	if err != nil {
 		pterm.Error.Println(err)
-		message.SendMsg(false, err.Error(), dial)
+		msgType := message.EuloMsgType{}
+		msgType.SetMsg(false, err.Error())
+		msgType.SendPacket(dial)
 	}
 }

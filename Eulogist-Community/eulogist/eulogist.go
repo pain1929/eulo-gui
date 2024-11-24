@@ -125,7 +125,9 @@ func Eulogist(serverCode string,
 			"Eulogist is ready! Please connect to Eulogist manually.\nEulogist server address: %s:%d\n",
 			client.Address.IP.String(), client.Address.Port,
 		)
-		message.SendMsg(true, "启动成功", conn)
+		msgType := message.EuloMsgType{}
+		msgType.SetMsg(true, "")
+		msgType.SendPacket(conn)
 	}
 
 	// 等待 Minecraft 客户端与赞颂者完成基本数据包交换

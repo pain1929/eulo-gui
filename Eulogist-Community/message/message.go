@@ -1,26 +1,40 @@
 package message
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"net"
 )
 
+// MsgType 消息类型
+type MsgType uint64
+
+const (
+	EuloMsg    MsgType = 0 // eulogist 进程返回的启动信息
+	SendCmdMsg MsgType = 1 // GUI 进程发送的命令信息
+)
+
 // MessageHdr 头部结构体
 type MessageHdr struct {
 	Zero   uint16 // 头部，固定为 0xAB
-	MsgLen uint16 // 消息长度 不包含头部
+	Pad    uint16 // 填充
+	MsgLen uint32 // 消息长度 (不包含头部，但包含 MsgType 和消息体长度)
 }
 
-// NormalMsg 结构体
-type NormalMsg struct {
+// 所有的tcp通讯必须使用以下结构
+// MessageHdr（8字节） + MsgType（8字节） + 消息结构 例如：EuloMsgType
+
+// EuloMsgType 通知 gui进程启动成功或者失败
+type EuloMsgType struct {
 	Started     bool    // 端口启动成功
+	Pad         int8    // 填充
 	ErrorMsgLen uint16  // 错误消息长度
 	ErrorMsg    []uint8 // 错误消息
 }
 
-// setMsg 方法：根据参数设置 NormalMsg 内容
-func (msg *NormalMsg) setMsg(started bool, errorMsg string) {
+// SetMsg 方法：设置是否启动成功
+func (msg *EuloMsgType) SetMsg(started bool, errorMsg string) {
 	// 设置 Started 和 ErrorMsgLen
 	msg.Started = started
 	msg.ErrorMsg = []uint8(errorMsg)
@@ -29,59 +43,89 @@ func (msg *NormalMsg) setMsg(started bool, errorMsg string) {
 	msg.ErrorMsgLen = uint16(len(msg.ErrorMsg))
 }
 
-// 将 NormalMsg 转换为字节切片
-func (msg *NormalMsg) toBytes() []uint8 {
-	// 计算消息总长度：Started (1 字节) + ErrorMsgLen (2 字节) + 错误消息 (ErrorMsgLen 字节)
-	totalLen := 1 + 2 + len(msg.ErrorMsg)
-
-	// 创建字节切片
-	buf := make([]uint8, totalLen)
-
-	// 将 Started 转换为 uint8 (1 字节)
-	if msg.Started {
-		buf[0] = 1
-	} else {
-		buf[0] = 0
+// toBytes 序列化 MessageHdr 为字节切片，返回切片及其长度
+func (hdr *MessageHdr) toBytes() ([]byte, int, error) {
+	var buffer bytes.Buffer
+	err := binary.Write(&buffer, binary.LittleEndian, hdr)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to serialize MessageHdr: %v", err)
 	}
-
-	// 将 ErrorMsgLen 转换为 uint16 (2 字节)
-	binary.LittleEndian.PutUint16(buf[1:3], msg.ErrorMsgLen)
-
-	// 将 ErrorMsg 复制到字节切片
-	copy(buf[3:], msg.ErrorMsg)
-
-	return buf
+	data := buffer.Bytes()
+	return data, len(data), nil
 }
 
-// sendMsg 方法：根据参数构建 MessageHdr 和 NormalMsg 并通过 TCP 连接发送
-func SendMsg(started bool, errorMsg string, conn net.Conn) error {
-	// 创建 NormalMsg 并设置内容
-	var msg NormalMsg
-	msg.setMsg(started, errorMsg)
+// toBytes 序列化 EuloMsgType 为字节切片，返回切片及其长度
+func (msg *EuloMsgType) toBytes() ([]byte, int, error) {
+	var buffer bytes.Buffer
 
-	// 获取 NormalMsg 的字节表示
-	msgBytes := msg.toBytes()
-
-	// 设置消息头的内容
-	var header MessageHdr
-	header.Zero = 0xAB
-	header.MsgLen = uint16(len(msgBytes)) // 仅包含 NormalMsg 的长度，不包括头部长度
-
-	// 将头部转换为字节切片
-	headerBytes := make([]uint8, 4)
-	binary.LittleEndian.PutUint16(headerBytes[0:2], header.Zero)
-	binary.LittleEndian.PutUint16(headerBytes[2:4], header.MsgLen)
-
-	// 发送头部
-	_, err := conn.Write(headerBytes)
+	// 写入 Started
+	err := binary.Write(&buffer, binary.LittleEndian, msg.Started)
 	if err != nil {
-		return fmt.Errorf("failed to send header: %v", err)
+		return nil, 0, fmt.Errorf("failed to serialize Started: %v", err)
 	}
 
-	// 发送消息内容
-	_, err = conn.Write(msgBytes)
+	// 写入 Pad
+	err = binary.Write(&buffer, binary.LittleEndian, msg.Pad)
 	if err != nil {
-		return fmt.Errorf("failed to send message body: %v", err)
+		return nil, 0, fmt.Errorf("failed to serialize Pad: %v", err)
+	}
+
+	// 写入 ErrorMsgLen
+	err = binary.Write(&buffer, binary.LittleEndian, msg.ErrorMsgLen)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to serialize ErrorMsgLen: %v", err)
+	}
+
+	// 写入 ErrorMsg
+	err = binary.Write(&buffer, binary.LittleEndian, msg.ErrorMsg)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to serialize ErrorMsg: %v", err)
+	}
+
+	data := buffer.Bytes()
+	return data, len(data), nil
+}
+
+// SendPacket 封装 EuloMsgType 的发送逻辑
+func (msg *EuloMsgType) SendPacket(conn net.Conn) error {
+	// 获取消息内容
+	messageBody, bodyLen, err := msg.toBytes()
+	if err != nil {
+		return fmt.Errorf("failed to serialize EuloMsgType: %v", err)
+	}
+
+	// 构造消息头
+	hdr := &MessageHdr{
+		Zero:   0xAB,                                              // 固定值
+		Pad:    0x00,                                              // 填充
+		MsgLen: uint32(bodyLen) + uint32(binary.Size(MsgType(0))), // 消息类型 + 消息体长度
+	}
+
+	// 获取消息头字节
+	hdrBytes, _, err := hdr.toBytes()
+	if err != nil {
+		return fmt.Errorf("failed to serialize MessageHdr: %v", err)
+	}
+
+	// 将消息头 + 消息类型 + 消息体拼接到一个缓冲区
+	var buffer bytes.Buffer
+
+	// 写入消息头
+	buffer.Write(hdrBytes)
+
+	// 写入消息类型
+	err = binary.Write(&buffer, binary.LittleEndian, MsgType(EuloMsg))
+	if err != nil {
+		return fmt.Errorf("failed to write MsgType: %v", err)
+	}
+
+	// 写入消息体
+	buffer.Write(messageBody)
+
+	// 将完整消息发送到 TCP 连接
+	_, err = conn.Write(buffer.Bytes())
+	if err != nil {
+		return fmt.Errorf("failed to send message: %v", err)
 	}
 
 	return nil
