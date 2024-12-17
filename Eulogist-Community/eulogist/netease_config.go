@@ -45,7 +45,7 @@ func DefaultNetEaseConfig() NetEaseConfig {
 		RoomInfo: RoomInfo{IP: "127.0.0.1", Port: 19132},
 		PlayerInfo: PlayerInfo{
 			UserID:   -1,
-			UserName: "Eulo-GUI",
+			UserName: "可可爱潇净",
 			Urs:      "***",
 		},
 		Misc: Misc{MultiplayerGameType: 100},

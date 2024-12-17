@@ -1,7 +1,6 @@
 package Eulogist
 
 import (
-	"Eulogist/core/tools/skin_process"
 	"Eulogist/message"
 	Client "Eulogist/proxy/mc_client"
 	Server "Eulogist/proxy/mc_server"
@@ -9,7 +8,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"os/exec"
 	"runtime/debug"
 	"sync"
 	"time"
@@ -67,68 +65,24 @@ func Eulogist(serverCode string,
 		pterm.Success.Println("Success to create handshake with NetEase Minecraft Bedrock Rental Server.")
 	}
 
-	config.LaunchType = LaunchTypeNoOperation
-	// 根据配置文件的启动类型决定启动方式
-	if config.LaunchType == LaunchTypeNormal {
-		// 初始化
-		var playerSkin *skin_process.Skin
-		var neteaseSkinFileName string
-		var useAccountSkin bool
-		// 检查 Minecraft 客户端是否存在
-		if !FileExist(config.NEMCPath) {
-			return fmt.Errorf("Eulogist: Client not found, maybe you did not download or the the path is incorrect")
-		}
-		// 取得皮肤数据
-		playerSkin = server.PersistenceData.SkinData.NeteaseSkin
-		useAccountSkin = (!FileExist(config.SkinPath) && playerSkin != nil)
-		// 皮肤处理
-		if useAccountSkin {
-			// 生成皮肤文件
-			if skin_process.IsZIPFile(playerSkin.FullSkinData) {
-				neteaseSkinFileName = "skin.zip"
-			} else {
-				neteaseSkinFileName = "skin.png"
-			}
-			err = os.WriteFile(neteaseSkinFileName, playerSkin.FullSkinData, 0600)
-			if err != nil {
-				return fmt.Errorf("Eulogist: %v", err)
-			}
-			currentPath, _ := os.Getwd()
-			config.SkinPath = fmt.Sprintf(`%s\%s`, currentPath, neteaseSkinFileName)
-			// 皮肤纤细处理
-		}
-		// 启动 Eulogist 服务器
-		client, clientWasConnected, err = Client.RunServer(persistenceData)
-		if err != nil {
-			return fmt.Errorf("Eulogist: %v", err)
-		}
-		defer client.Conn.CloseConnection()
-		if err != nil {
-			return fmt.Errorf("Eulogist: %v", err)
-		}
-		// 启动 Minecraft 客户端
-		command := exec.Command("Minecraft.Windows.exe", "config=netease.cppconfig")
-		go command.Run()
-		// 打印准备完成的信息
-		pterm.Success.Println("Eulogist is ready! Now we are going to start Minecraft Client.\nThen, the Minecraft Client will connect to Eulogist automatically.")
-	} else {
-		currentPath, _ := os.Getwd()
-		GenerateNetEaseConfig(fmt.Sprintf(`%s\%s`, currentPath, "steve.png"), false, "127.0.0.1", 1929)
-		// 启动 Eulogist 服务器
-		client, clientWasConnected, err = Client.RunServer(persistenceData)
-		if err != nil {
-			return fmt.Errorf("Eulogist: %v", err)
-		}
-		defer client.Conn.CloseConnection()
-		// 打印赞颂者准备完成的信息
-		pterm.Success.Printf(
-			"Eulogist is ready! Please connect to Eulogist manually.\nEulogist server address: %s:%d\n",
-			client.Address.IP.String(), client.Address.Port,
-		)
-		msgType := message.EuloMsgType{}
-		msgType.SetMsg(true, "")
-		msgType.SendPacket(conn)
+	var neteaseSkinFileName string = "defSkin.png"
+
+	currentPath, _ := os.Getwd()
+	GenerateNetEaseConfig(fmt.Sprintf(`%s\%s`, currentPath, neteaseSkinFileName), false, "127.0.0.1", 1929)
+	// 启动 Eulogist 服务器
+	client, clientWasConnected, err = Client.RunServer(persistenceData)
+	if err != nil {
+		return fmt.Errorf("Eulogist: %v", err)
 	}
+	defer client.Conn.CloseConnection()
+	// 打印赞颂者准备完成的信息
+	pterm.Success.Printf(
+		"Eulogist is ready! Please connect to Eulogist manually.\nEulogist server address: %s:%d\n",
+		client.Address.IP.String(), client.Address.Port,
+	)
+	msgType := message.EuloMsgType{}
+	msgType.SetMsg(true, "")
+	msgType.SendPacket(conn)
 
 	// 等待 Minecraft 客户端与赞颂者完成基本数据包交换
 	{

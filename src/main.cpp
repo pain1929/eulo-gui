@@ -33,10 +33,10 @@ void createJobObject() {
 int main(int argc, char *argv[])
 {
     // 读取皮肤文件 从资源文件内部读取皮肤文件 与程序同级
-    if (!std::filesystem::exists("./steve.png")) {
-        auto data = FileReader::read("./steve.data");
+    if (!std::filesystem::exists("./defSkin.png")) {
+        auto data = FileReader::read("./defSkin.data");
         if (data.empty()) {throw std::runtime_error ("未找到皮肤文件");}
-        FileReader::write("./steve.png" , data.data() , data.size());
+        FileReader::write("./defSkin.png" , data.data() , data.size());
     }
 
 

@@ -27,19 +27,24 @@ Widget::Widget(QWidget *parent)
     ui->title->setScaledContents(true);  // 图片会自动缩放以适应标签大小
     this->setStyleSheet(R"(
 
-/* 按钮样式 */
 QPushButton {
-    background-color: #7a7a7a; /* 按钮颜色，类似石头的颜色 */
-    border: 2px solid #3a3a3a; /* 按钮边框 */
-    border-radius: 5px; /* 圆角边框 */
-    color: white; /* 按钮文字颜色 */
-    font-family: 'Minecraft', sans-serif; /* 使用像素化的字体 */
-    font-size: 14px;
-    padding: 10px;
-    min-width: 120px;
-    text-align: center;
-    text-transform: uppercase; /* 按钮文字大写 */
-}
+            background-color: #6b6b6b;
+            color: #ffffff;
+            font: bold 16px "Minecraft";
+            border: 2px solid #3c3c3c;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        QPushButton:hover {
+            background-color: #828282;
+            border: 2px solid #5c5c5c;
+        }
+        QPushButton:pressed {
+            background-color: #505050;
+            border: 2px solid #2c2c2c;
+        }
+
+
 
 QMessageBox {
       background-color: white;
@@ -49,34 +54,23 @@ QMessageBox QLabel {
      color: black;
 }
 
-/* 按钮悬停时的样式 */
-QPushButton:hover {
-    background-color: #929292; /* 悬停时的颜色，稍微亮一点 */
-    border-color: #5a5a5a;
-}
 
-/* 按钮点击时的样式 */
-QPushButton:pressed {
-    background-color: #5a5a5a; /* 按钮被按下时的颜色 */
-    border-color: #3a3a3a;
-}
 
-/* 输入框样式 */
-QLineEdit {
-    background-color: #2c2c2c; /* 输入框背景颜色 */
-    border: 2px solid #555555; /* 边框颜色 */
-    color: white; /* 字体颜色 */
-    font-family: 'Minecraft', sans-serif; /* 使用像素化字体 */
-    font-size: 14px;
-    padding: 5px;
-    border-radius: 4px; /* 输入框圆角 */
-}
-
-/* 聚焦时的输入框样式 */
-QLineEdit:focus {
-    border: 2px solid #7a7a7a; /* 聚焦时的边框颜色 */
-    background-color: #3a3a3a; /* 聚焦时的背景颜色 */
-}
+ QLineEdit {
+            background-color: rgba(50, 50, 50, 180);
+            color: #ffffff;
+            font: 14px "Minecraft";
+            border: 2px solid #3c3c3c;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        QLineEdit:focus {
+            border: 2px solid #5c5c5c;
+        }
+        QLineEdit::placeholder {
+            color: #aaaaaa;
+            font-style: italic;
+        }
 
 /* 标签样式 */
 QLabel {
@@ -245,7 +239,7 @@ void Widget::on_game_clicked(bool) {
     if (!exists(*gamePath))
     {
         QMessageBox::critical(this , "错误" , "路径不正确");
-        QMessageBox::information(this , "提示" , "请配置启动路径 例如 c:\\abc\\def\\mc 或 c:/abc/def/mc");
+        QMessageBox::information(this , "提示" , "请配置启动路径！");
         on_setting_clicked(true);
         return;
     }

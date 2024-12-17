@@ -1,0 +1,18 @@
+{
+	"room_info": {
+		"ip": "127.0.0.1",
+		"port": 1929
+	},
+	"player_info": {
+		"user_id": -1,
+		"user_name": "Eulo-GUI",
+		"urs": "***"
+	},
+	"skin_info": {
+		"skin": "D:\\work\\Eulo-GUI\\Eulogist-Community\\steve.png",
+		"slim": false
+	},
+	"misc": {
+		"multiplayer_game_type": 100
+	}
+}
