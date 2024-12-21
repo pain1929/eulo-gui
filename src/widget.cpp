@@ -117,7 +117,7 @@ QScrollBar::handle:vertical:hover, QScrollBar::handle:horizontal:hover {
 }
     )");
 
-    this->setWindowTitle("Eulo-GUI");
+    this->setWindowTitle("eulogist-gui");
     load();
     ui->code->setText(token.code.c_str());
     ui->pwd->setText(token.pwd.c_str());
