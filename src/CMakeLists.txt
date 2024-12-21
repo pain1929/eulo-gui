@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(Eulo-GUI VERSION 2.1.0 LANGUAGES CXX)
+project(Eulo-GUI VERSION 2.1.1 LANGUAGES CXX)
 
 if(MSVC)
     # 设置 MSVC 编译器使用 UTF-8 编码

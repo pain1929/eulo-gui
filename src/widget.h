@@ -13,7 +13,7 @@
 #include "FileReader.h"
 #include "settingdlg.h"
 
-#define APP_VERSION "2.1.0"
+#define APP_VERSION "2.1.1"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Widget; }

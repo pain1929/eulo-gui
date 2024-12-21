@@ -45,6 +45,8 @@ public:
 public slots:
     void on_save_clicked(bool);
 
+    void loadMCPEPath();
+
 private:
     Ui::SettingDlg *ui;
 };

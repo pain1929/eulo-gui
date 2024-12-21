@@ -223,6 +223,7 @@ void Widget::on_btnTitle(QString msg)
 void Widget::on_setting_clicked(bool)
 {
     SettingDlg dlg(this);
+    dlg.loadMCPEPath();
     dlg.exec();
     this->config_ = dlg.config;
 }
