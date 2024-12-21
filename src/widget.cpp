@@ -117,7 +117,7 @@ QScrollBar::handle:vertical:hover, QScrollBar::handle:horizontal:hover {
 }
     )");
 
-    this->setWindowTitle("eulogist-gui");
+    this->setWindowTitle("赞颂者GUI v" + QString(APP_VERSION));
     load();
     ui->code->setText(token.code.c_str());
     ui->pwd->setText(token.pwd.c_str());
